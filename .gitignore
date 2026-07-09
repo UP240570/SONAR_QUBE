@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+reports/
+coverage.xml
+.pytest_cache/
+.scannerwork/
+.sonar/

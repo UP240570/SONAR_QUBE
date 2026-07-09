@@ -1,0 +1,49 @@
+name: CI - Pruebas y Analisis de Calidad
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-and-analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Instalar Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Levantar la app Flask en segundo plano
+        run: |
+          nohup python app/app.py &
+          sleep 3
+
+      - name: Correr pruebas con cobertura y reporte HTML
+        run: |
+          pytest --html=reports/report.html --self-contained-html \
+                 --cov=app --cov=pages --cov-report=xml:coverage.xml
+
+      - name: Analisis de SonarQube
+        uses: sonarsource/sonarqube-scan-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      - name: Subir reporte HTML como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: reporte-pytest
+          path: reports/report.html

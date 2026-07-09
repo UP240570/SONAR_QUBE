@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; }
+        li.done span { text-decoration: line-through; color: #888; }
+        li { margin-bottom: 8px; list-style: none; }
+        form.inline { display: inline; }
+    </style>
+</head>
+<body>
+    <h1 id="welcome-message">Bienvenido, {{ user }}</h1>
+    <a href="/logout" id="logout-link">Cerrar sesión</a>
+
+    <h2>Mis tareas</h2>
+
+    <form method="POST" action="/tasks/add" id="add-task-form">
+        <input type="text" id="task-input" name="task_text" placeholder="Nueva tarea" autocomplete="off">
+        <button type="submit" id="add-task-btn">Agregar</button>
+    </form>
+
+    <ul id="task-list">
+        {% for task in tasks %}
+        <li id="task-item-{{ task.id }}" class="{{ 'done' if task.done else '' }}">
+            <form class="inline" method="POST" action="/tasks/toggle/{{ task.id }}">
+                <input type="checkbox" id="task-checkbox-{{ task.id }}" onchange="this.form.submit()" {{ 'checked' if task.done else '' }}>
+            </form>
+            <span id="task-text-{{ task.id }}">{{ task.text }}</span>
+            <form class="inline" method="POST" action="/tasks/delete/{{ task.id }}">
+                <button type="submit" id="delete-task-{{ task.id }}">Eliminar</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+
+    {% if not tasks %}
+    <p id="no-tasks-message">No tienes tareas pendientes.</p>
+    {% endif %}
+</body>
+</html>
