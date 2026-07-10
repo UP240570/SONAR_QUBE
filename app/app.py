@@ -1,9 +1,9 @@
+import os
 import itertools
 from flask import Flask, render_template, request, redirect, url_for, session
 
 app = Flask(__name__)
-app.secret_key = "dev-secret-key"
-
+app.secret_key = os.getenv("SECRET_KEY", "change-this-in-development")
 # "Base de datos" en memoria solo para fines de demostración
 USERS = {
     "admin": "admin123",
@@ -42,7 +42,7 @@ def login():
     return render_template("login.html", error=error)
 
 
-@app.route("/dashboard")
+@app.route("/dashboard", methods=["GET"])
 def dashboard():
     if "user" not in session:
         return redirect(url_for("login"))
